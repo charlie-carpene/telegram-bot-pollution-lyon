@@ -6,13 +6,23 @@ const axios = require('axios');
 const Bot = require('node-telegram-bot-api');
 let bot;
 
+const location = ({45.75},{4.85});
+const datetime = `2020-03-28Z`;
 // OpenWeatherMap endpoint for getting weather by city name
 const weatherEndpoint = (city) => (
   `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&&appid=${appID}`
 );
 
+const pollutionEndpoint = (location, datetime) => (
+  `http://api.openweathermap.org/pollution/v1/co/${location}/${datetime}.json?appid=${appID}`
+);
+
+const pollutionHtmlTemplate = (name, data) => (
+  `Niveau de pollution à ${name} : ${data.value}`
+);
+
 // URL that provides icon according to the weather
-const weatherIcon = (icon) => `http://openweathermap.org/img/w/${icon}.png`;
+//const weatherIcon = (icon) => `http://openweathermap.org/img/w/${icon}.png`;
 
 // Template for weather response
 const weatherHtmlTemplate = (name, main, weather, wind, clouds) => (
@@ -49,10 +59,13 @@ const getWeather = (chatId, city) => {
       clouds
     } = resp.data;
 
-    bot.sendPhoto(chatId, weatherIcon(weather[0].icon))
+    //bot.sendPhoto(chatId, weatherIcon(weather[0].icon))
     bot.sendMessage(
       chatId,
       weatherHtmlTemplate(name, main, weather[0], wind, clouds), {
+        parse_mode: "HTML"
+      }
+      pollutionHtmlTemplate(name, data), {
         parse_mode: "HTML"
       }
     );
