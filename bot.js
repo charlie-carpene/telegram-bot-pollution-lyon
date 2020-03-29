@@ -22,7 +22,7 @@ const pollutionHtmlTemplate = (name, data) => (
 );
 
 // URL that provides icon according to the weather
-//const weatherIcon = (icon) => `http://openweathermap.org/img/w/${icon}.png`;
+const weatherIcon = (icon) => `http://openweathermap.org/img/w/${icon}.png`;
 
 // Template for weather response
 const weatherHtmlTemplate = (name, main, weather, wind, clouds) => (
@@ -59,7 +59,7 @@ const getWeather = (chatId, city) => {
       clouds
     } = resp.data;
 
-    //bot.sendPhoto(chatId, weatherIcon(weather[0].icon))
+    bot.sendPhoto(chatId, weatherIcon(weather[0].icon))
     bot.sendMessage(
       chatId,
       weatherHtmlTemplate(name, main, weather[0], wind, clouds), {
