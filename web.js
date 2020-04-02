@@ -16,9 +16,9 @@ var server = app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log('Web server started at http://%s:%s', host, port);
 });
 
-module.exports = (bot) => {
-  app.post('/' + bot.token, (req, res) => {
-    bot.processUpdate(req.body);
+module.exports = (bot2) => {
+  app.post('/' + bot2.token, (req, res) => {
+    bot2.processUpdate(req.body);
     res.sendStatus(200);
   });
 };

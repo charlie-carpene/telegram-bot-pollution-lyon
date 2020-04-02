@@ -15,6 +15,8 @@
     "body-parser": "^1.15.0",
     "dotenv": "^4.0.0",
     "express": "^4.13.4",
+    "node-geocoder": "^3.27.0",
+    "node-open-geocoder": "^4.0.1",
     "node-telegram-bot-api": "^0.30.0"
   }
 }
