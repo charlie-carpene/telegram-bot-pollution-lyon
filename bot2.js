@@ -23,7 +23,7 @@ const sendTodaysValue = (chatId, today) => {
     var i;
     for (i = 0; i < indices.data.length; i++) {
       if (formatDateToString(today) === indices.data[i].date) {
-        bot2.sendMessage(chatId, `<b>Indice ${indices.data[i].qualificatif}</b> à Villeurbanne (${indices.data[i].date})`, { parse_mode: "HTML" });
+        bot2.sendMessage(chatId, `Indice <b>${indices.data[i].qualificatif}</b> à Villeurbanne (${indices.data[i].date})`, { parse_mode: "HTML" });
         break;
       };
     };
@@ -37,7 +37,7 @@ const sendTodaysValue = (chatId, today) => {
     var i;
     for (i = 0; i < indices.data.length; i++) {
       if (formatDateToString(today) === indices.data[i].date) {
-        bot2.sendMessage(chatId, `<b>Indice ${indices.data[i].qualificatif}</b> à Lyon-1 (${indices.data[i].date})`, { parse_mode: "HTML" });
+        bot2.sendMessage(chatId, `Indice <b>${indices.data[i].qualificatif}</b> à Lyon-1 (${indices.data[i].date})`, { parse_mode: "HTML" });
         break;
       };
     };
@@ -55,7 +55,7 @@ let sendTomorrowsValue = (chatId, today) => {
     var i;
     for (i = 0; i < indices.data.length; i++) {
       if (formatDateToString(today) === indices.data[i].date) {
-        bot2.sendMessage(chatId, `<b>Indice ${indices.data[i-1].qualificatif}</b> à Villeurbanne (${indices.data[i-1].date})`, { parse_mode: "HTML" });
+        bot2.sendMessage(chatId, `Indice <b>${indices.data[i-1].qualificatif}</b> à Villeurbanne (${indices.data[i-1].date})`, { parse_mode: "HTML" });
         break;
       };
     };
@@ -69,7 +69,7 @@ let sendTomorrowsValue = (chatId, today) => {
     var i;
     for (i = 0; i < indices.data.length; i++) {
       if (formatDateToString(today) === indices.data[i].date) {
-        bot2.sendMessage(chatId, `<b>Indice ${indices.data[i-1].qualificatif}</b> à Lyon-1 (${indices.data[i-1].date})`, { parse_mode: "HTML" });
+        bot2.sendMessage(chatId, `Indice <b>${indices.data[i-1].qualificatif}</b> à Lyon-1 (${indices.data[i-1].date})`, { parse_mode: "HTML" });
         break;
       };
     };
