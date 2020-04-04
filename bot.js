@@ -1,114 +1,93 @@
+const Bot = require('node-telegram-bot-api');
 const token = process.env.TOKEN;
 const appID = process.env.WEATHER_ID;
 
 const axios = require('axios');
+const openGeocoder = require('node-open-geocoder');
 
-const Bot = require('node-telegram-bot-api');
-let bot;
+function formatDateToString(today){
+   var dd = (today.getDate() < 10 ? '0' : '') + today.getDate();
+   var mm = ((today.getMonth() + 1) < 10 ? '0' : '') + (today.getMonth() + 1);
+   var yyyy = today.getFullYear();
+   return (yyyy + "-" + mm + "-" + dd);
+};
 
-const location = `${45.75},${4.85}`;
-const datetime = `2020-03-28Z`;
+const bot = new Bot(token, {polling: true});
 
-// OpenWeatherMap endpoint for getting weather by city name
-const weatherEndpoint = (city) => (
-  `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&&appid=${appID}`
-);
+// ask ATMO server for todays pollution value at a specific zipcode
+const sendTodaysValue = (chatId, today) => {
 
-const pollutionEndpoint = (location, datetime) => (
-  `http://api.openweathermap.org/pollution/v1/co/${location}/${datetime}.json?appid=${appID}`
-);
-
-const pollutionHtmlTemplate = (name, data) => (
-  `Niveau de pollution à ${name} : ${data.value}`
-);
-
-// URL that provides icon according to the weather
-const weatherIcon = (icon) => `http://openweathermap.org/img/w/${icon}.png`;
-
-// Template for weather response
-const weatherHtmlTemplate = (name, main, weather, wind, clouds) => (
-  `The weather in <b>${name}</b>:
-<b>${weather.main}</b> - ${weather.description}
-Temperature: <b>${main.temp} °C</b>
-Pressure: <b>${main.pressure} hPa</b>
-Humidity: <b>${main.humidity} %</b>
-Wind: <b>${wind.speed} meter/sec</b>
-Clouds: <b>${clouds.all} %</b>
-`
-);
-
-if(process.env.NODE_ENV === 'production') {
-  bot = new Bot(token);
-  bot.setWebHook(process.env.HEROKU_URL + bot.token);
-}
-else {
-  bot = new Bot(token, { polling: true });
-}
-
-console.log('Bot server started in the ' + process.env.NODE_ENV + ' mode');
-
-// Function that gets the weather by the city name
-const getWeather = (chatId, city) => {
-  const endpoint = weatherEndpoint(city);
-
-  axios.get(endpoint).then((resp) => {
-    const {
-      name,
-      main,
-      weather,
-      wind,
-      clouds
-    } = resp.data;
-
-    //bot.sendPhoto(chatId, weatherIcon(weather[0].icon))
-    bot.sendMessage(
-      chatId,
-      weatherHtmlTemplate(name, main, weather[0], wind, clouds), {
-        parse_mode: "HTML"
-      }
-    );
+  //send Villeurbanne today's data
+  axios.get(`https://api.atmo-aura.fr/communes/69100/indices?api_token=${appID}`).then((resp) => {
+    let {indices} = resp.data;
+    var i;
+    for (i = 0; i < indices.data.length; i++) {
+      if (formatDateToString(today) === indices.data[i].date) {
+        bot.sendMessage(chatId, `Indice <b>${indices.data[i].qualificatif}</b> à Villeurbanne (${indices.data[i].date})`, { parse_mode: "HTML" });
+        break;
+      };
+    };
   }, error => {
-    console.log("error", error);
-    bot.sendMessage(
-      chatId,
-      `Ooops...I couldn't be able to get weather for <b>${city}</b>`, {
-        parse_mode: "HTML"
-      }
-    );
+    bot.sendMessage(chatId, `Ooops...les coordonnées sont trop précisent`, { parse_mode: "HTML" });
   });
-}
 
-// Listener (handler) for telegram's /weather event
-bot.onText(/\/weather/, (msg, match) => {
+  //send Lyon 01 today's data
+  axios.get(`https://api.atmo-aura.fr/communes/69001/indices?api_token=${appID}`).then((resp) => {
+    let {indices} = resp.data;
+    var i;
+    for (i = 0; i < indices.data.length; i++) {
+      if (formatDateToString(today) === indices.data[i].date) {
+        bot.sendMessage(chatId, `Indice <b>${indices.data[i].qualificatif}</b> à Lyon-1 (${indices.data[i].date})`, { parse_mode: "HTML" });
+        break;
+      };
+    };
+  }, error => {
+    bot.sendMessage(chatId, `Ooops...les coordonnées sont trop précisent`, { parse_mode: "HTML" });
+  });
+};
+
+// ask ATMO server for tomorrow's pollution value at a specific zipcode
+let sendTomorrowsValue = (chatId, today) => {
+
+  //send Villeurbanne tomorrow's data
+  axios.get(`https://api.atmo-aura.fr/communes/69100/indices?api_token=${appID}`).then((resp) => {
+    let {indices} = resp.data;
+    var i;
+    for (i = 0; i < indices.data.length; i++) {
+      if (formatDateToString(today) === indices.data[i].date) {
+        bot.sendMessage(chatId, `Indice <b>${indices.data[i-1].qualificatif}</b> à Villeurbanne (${indices.data[i-1].date})`, { parse_mode: "HTML" });
+        break;
+      };
+    };
+  }, error => {
+    bot.sendMessage(chatId, `Ooops...les coordonnées sont trop précisent`, { parse_mode: "HTML" });
+  });
+
+  //send Lyon 01 tomorrow's data
+  axios.get(`https://api.atmo-aura.fr/communes/69001/indices?api_token=${appID}`).then((resp) => {
+    let {indices} = resp.data;
+    var i;
+    for (i = 0; i < indices.data.length; i++) {
+      if (formatDateToString(today) === indices.data[i].date) {
+        bot.sendMessage(chatId, `Indice <b>${indices.data[i-1].qualificatif}</b> à Lyon-1 (${indices.data[i-1].date})`, { parse_mode: "HTML" });
+        break;
+      };
+    };
+  }, error => {
+    bot.sendMessage(chatId, `Ooops...les coordonnées sont trop précisent`, { parse_mode: "HTML" });
+  });
+};
+
+bot.onText(/\/ajd/, (msg) => {
   const chatId = msg.chat.id;
-  const city = match.input.split(' ')[1];
+  let today = new Date();
 
-  if (city === undefined) {
-    bot.sendMessage(
-      chatId,
-      `Please provide city name`
-    );
-    return;
-  }
-  getWeather(chatId, city);
+  sendTodaysValue(chatId, today);
 });
 
-// Listener (handler) for telegram's /start event
-// This event happened when you start the conversation with both by the very first time
-// Provide the list of available commands
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/demain/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(
-    chatId,
-    `Welcome at <b>MyTestWeatherInfoBot</b>, thank you for using my service
+  let today = new Date();
 
-Available commands:
-
-/weather <b>city</b> - shows weather for selected <b>city</b>
-  `, {
-      parse_mode: "HTML"
-    }
-  );
+  sendTomorrowsValue(chatId, today);
 });
-
-module.exports = bot;
