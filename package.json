@@ -14,7 +14,7 @@
     "axios": "^0.19.2",
     "body-parser": "^1.15.0",
     "dotenv": "^4.0.0",
-    "express": "^4.13.4",
+    "express": "^4.17.3",
     "node-geocoder": "^3.27.0",
     "node-open-geocoder": "^4.0.1",
     "node-telegram-bot-api": "^0.30.0"
